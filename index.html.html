@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>그린스텝 (GreenStep) - 학급 대항전</title>
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --primary-light: #e8f5e9;
+            --accent-color: #81c784;
+            --bg-color: #f1f8e9;
+            --text-color: #333;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 410px;
+            height: 840px;
+            background-color: #fcfdfa;
+            border-radius: 30px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 6px solid #333;
+            position: relative;
+        }
+
+        header {
+            background-color: var(--primary-light);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #dcedc8;
+        }
+
+        header h1 {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        /* 대시보드 - 학급 정보 포함 */
+        .dashboard {
+            background-color: var(--primary-light);
+            padding: 15px 20px;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .dashboard-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .class-selector {
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--accent-color);
+            background-color: white;
+            font-weight: bold;
+            color: var(--primary-color);
+            outline: none;
+        }
+
+        .dashboard .label {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .dashboard .points {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-top: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .content {
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* 미션 카드 */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .badge {
+            background-color: #e8f5e9;
+            color: var(--primary-color);
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .card-desc {
+            font-size: 0.8rem;
+            color: #777;
+            margin-bottom: 12px;
+        }
+
+        /* 이미지 업로드 */
+        .upload-area {
+            width: 100%;
+            height: 140px;
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            overflow: hidden;
+            background-color: #fafafa;
+        }
+
+        .upload-placeholder {
+            text-align: center;
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        #preview-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+
+        .btn-submit.completed {
+            background-color: #9e9e9e !important;
+        }
+
+        /* 🏆 학급 랭킹 보드 스타일 */
+        .ranking-board {
+            background-color: white;
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e0e0e0;
+        }
+
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 8px;
+            border-bottom: 1px solid #f0f0f0;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+
+        .rank-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .rank-number {
+            font-weight: bold;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            font-size: 0.9rem;
+        }
+
+        /* 1, 2, 3등 하이라이트 */
+        .rank-1 .rank-number { background-color: #ffd700; color: #5d4037; }
+        .rank-2 .rank-number { background-color: #c0c0c0; color: #455a64; }
+        .rank-3 .rank-number { background-color: #cd7f32; color: white; }
+
+        .my-class-highlight {
+            background-color: #f1f8e9;
+            border: 1px solid var(--accent-color);
+        }
+
+        .rank-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .rank-score {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 0.95rem;
+        }
+
+        /* 토스트 */
+        .toast {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1>🌿 그린스텝 (GreenStep)</h1>
+        </header>
+
+        <div class="dashboard">
+            <div class="dashboard-row">
+                <div>
+                    <div class="label">소속 학급 선택</div>
+                    <select class="class-selector" id="class-select" onchange="changeClass()">
+                        <option value="1반">1학년 1반</option>
+                        <option value="2반" selected>1학년 2반 (나)</option>
+                        <option value="3반">1학년 3반</option>
+                        <option value="4반">1학년 4반</option>
+                    </select>
+                </div>
+                <div style="text-align: right;">
+                    <div class="label">개인 에코 포인트</div>
+                    <div class="points" id="user-points">100 P</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section-title">오늘의 그린 미션</div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">🥤 텀블러 사용하기</span>
+                    <span class="badge">+50P</span>
+                </div>
+                <p class="card-desc">우리 반 점수를 올리기 위해 텀블러 인증샷을 등록하세요!</p>
+
+                <div class="upload-area" onclick="triggerUpload()">
+                    <div class="upload-placeholder" id="placeholder-box">
+                        <span>📸 터치하여 사진 등록</span>
+                    </div>
+                    <img id="preview-img" alt="인증샷">
+                </div>
+                <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)">
+                <button class="btn-submit" id="submit-btn" onclick="completeMission()">인증하고 우리 반에 기여하기</button>
+            </div>
+
+            <div class="section-title">🏆 실시간 학급 랭킹</div>
+            <div class="ranking-board" id="ranking-list">
+                </div>
+        </div>
+
+        <div class="toast" id="toast-message"></div>
+    </div>
+
+    <script>
+        // 초기 학급 점수 데이터
+        let classScores = {
+            "1반": 1450,
+            "2반": 1200, // 사용자가 속한 반
+            "3반": 1550,
+            "4반": 980
+        };
+
+        let myPoints = 100;
+        let isImageSelected = false;
+        let isMissionCompleted = false;
+
+        // 앱 시작 시 랭킹판 보이기
+        window.onload = function() {
+            renderRanking();
+        };
+
+        function triggerUpload() {
+            if (isMissionCompleted) return;
+            document.getElementById('file-input').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview-img').src = e.target.result;
+                    document.getElementById('preview-img').style.display = 'block';
+                    document.getElementById('placeholder-box').style.display = 'none';
+                    isImageSelected = true;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 미션 완료 시 점수 처리
+        function completeMission() {
+            if (isMissionCompleted) return;
+
+            if (!isImageSelected) {
+                showToast("⚠️ 먼저 인증 사진을 선택해 주세요!");
+                return;
+            }
+
+            isMissionCompleted = true;
+            
+            // 1. 개인 포인트 50 증가
+            myPoints += 50;
+            document.getElementById('user-points').innerText = `${myPoints} P`;
+
+            // 2. 현재 선택된 학급의 총 점수도 50 증가!!
+            const selectedClass = document.getElementById('class-select').value;
+            classScores[selectedClass] += 50;
+
+            // 3. 랭킹 보드 새로고침 (순위가 바뀔 수 있음)
+            renderRanking();
+
+            // 버튼 비활성화
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.innerText = "인증 완료 (학급 점수 반영됨)";
+            submitBtn.classList.add('completed');
+            
+            showToast(`🎉 미션 성공! ${selectedClass} 점수가 50P 올랐습니다!`);
+        }
+
+        // 학급 점수를 정렬하여 순위표를 화면에 그리는 함수
+        function renderRanking() {
+            const rankingListEl = document.getElementById('ranking-list');
+            const selectedClass = document.getElementById('class-select').value;
+
+            // 딕셔너리를 배열로 바꾸고 점수 높은 순으로 정렬
+            let sortedClasses = Object.keys(classScores).map(key => {
+                return { name: key, score: classScores[key] };
+            });
+            sortedClasses.sort((a, b) => b.score - a.score);
+
+            // HTML 생성
+            let rankingHTML = "";
+            sortedClasses.forEach((item, index) => {
+                const rankNum = index + 1;
+                // 내가 선택한 반인 경우 하이라이트 효과 클래스 추가
+                const isMyClass = item.name === selectedClass ? "my-class-highlight" : "";
+                
+                rankingHTML += `
+                    <div class="ranking-item rank-${rankNum} ${isMyClass}">
+                        <div class="rank-left">
+                            <span class="rank-number">${rankNum}</span>
+                            <span class="rank-name">1학년 ${item.name}</span>
+                        </div>
+                        <span class="rank-score">${item.score.toLocaleString()} P</span>
+                    </div>
+                `;
+            });
+
+            rankingListEl.innerHTML = rankingHTML;
+        }
+
+        // 드롭다운에서 학급을 바꿨을 때 실시간 강조 표시 변경
+        function changeClass() {
+            renderRanking();
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast-message');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+    </script>
+</body>
+</html>
